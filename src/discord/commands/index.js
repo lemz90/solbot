@@ -47,7 +47,16 @@ const initCommands = async (client) => {
 
   const setCommand = async (file) => {
     const command = await import(`./commands/${file}`);
+    console.log(`Loading command file: ${file}`, {
+        command,
+        default: command.default,
+        keys: Object.keys(command)
+    });
     const commandModule = command.default;
+    if (!commandModule || !commandModule.name) {
+        console.error(`Invalid command module in ${file}:`, commandModule);
+        return;
+    }
     console.log(`Registering command: ${commandModule.name}`);
     client.commands.set(commandModule.name, commandModule);
   };
