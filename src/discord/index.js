@@ -1,23 +1,17 @@
-import Discord from 'discord.js';
 import CommandUtil from './commands';
 import { COMMAND_PREFIX } from '../config';
 import Wallet from '../wallet';
 
-const initHandler = async () => {
-  const client = new Discord.Client();
+const initHandler = async (client) => {
   await CommandUtil.initCommands(client);
 
-  client.once('ready', () => {
-    console.log('Ready!');
-  });
-
-  client.on('message', async (message) => {
+  client.on('messageCreate', async (message) => {
     if (!message.content.startsWith(COMMAND_PREFIX) || message.author.bot) return;
 
     const args = message.content.slice(COMMAND_PREFIX.length).trim().split(/ +/);
     const command = args[0];
 
-    if (!client.commands.keyArray().includes(command)) {
+    if (!client.commands.has(command)) {
       return;
     }
 
@@ -31,19 +25,12 @@ const initHandler = async () => {
       return;
     }
 
-    if (message.channel.type === 'dm') {
+    if (message.channel.type === 'DM') {
       await client.commands.get(command).execute(message, args);
     } else if (CommandUtil.COMMANDS.SEND === command) {
       await client.commands.get(command).execute(message, args);
     }
   });
-
-  try {
-    await client.login(process.env.DISCORD_TOKEN);
-  } catch (e) {
-    console.error('Bot has failed to connect to discord.');
-    process.exit(1);
-  }
 };
 
 export default {

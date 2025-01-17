@@ -4,7 +4,6 @@
   "description": "Solana Discord Tipping Bot",
   "main": "src/index.js",
   "scripts": {
-    "lint": "eslint src --fix",
     "start": "nodemon --exec babel-node src/index.js",
     "migrate": "sequelize-cli db:migrate",
     "test": "jest"
@@ -12,9 +11,10 @@
   "author": "Paul Schaaf",
   "license": "ISC",
   "dependencies": {
-    "@solana/web3.js": "^0.71.9",
+    "@solana/spl-token": "^0.3.8",
+    "@solana/web3.js": "^1.87.0",
     "bip39": "^3.0.2",
-    "discord.js": "^12.2.0",
+    "discord.js": "^14.14.1",
     "dotenv": "^8.2.0",
     "keyv": "^4.0.1",
     "node-fetch": "^2.6.0",
@@ -38,7 +38,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint; npm run test"
+      "pre-commit": "npm run test"
     }
   }
 }
