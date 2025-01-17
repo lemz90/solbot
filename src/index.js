@@ -8,12 +8,15 @@ config.init();
 
 const client = new Discord.Client({
     intents: [
-        Discord.GatewayIntentBits.Guilds,
-        Discord.GatewayIntentBits.GuildMessages,
-        Discord.GatewayIntentBits.MessageContent,
-        Discord.GatewayIntentBits.GuildMembers,
-        Discord.GatewayIntentBits.DirectMessages,
-        Discord.GatewayIntentBits.DirectMessageReactions
+        Discord.IntentsBitField.Flags.Guilds,
+        Discord.IntentsBitField.Flags.GuildMessages,
+        Discord.IntentsBitField.Flags.GuildMembers,
+        Discord.IntentsBitField.Flags.DirectMessages,
+        Discord.IntentsBitField.Flags.DirectMessageTyping,
+        Discord.IntentsBitField.Flags.MessageContent,
+        Discord.IntentsBitField.Flags.GuildMessageTyping,
+        Discord.IntentsBitField.Flags.GuildMessageReactions,
+        Discord.IntentsBitField.Flags.DirectMessageReactions
     ]
 });
 
