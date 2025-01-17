@@ -29,6 +29,15 @@ export const OK_WITHOUT_LOGIN_COMMANDS = [
   COMMANDS.HELP,
 ];
 
+export const DM_ONLY_COMMANDS = [
+  COMMANDS.CREATE_NEW,
+  COMMANDS.LOGIN,
+  COMMANDS.ME,
+  COMMANDS.CLUSTER,
+  COMMANDS.LOGOUT,
+  COMMANDS.BALANCE,
+];
+
 let allCommands;
 
 const initCommands = async (client) => {
