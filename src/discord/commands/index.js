@@ -47,7 +47,9 @@ const initCommands = async (client) => {
 
   const setCommand = async (file) => {
     const command = await import(`./commands/${file}`);
-    client.commands.set(command.name, command.default);
+    const commandModule = command.default;
+    console.log(`Registering command: ${commandModule.name}`);
+    client.commands.set(commandModule.name, commandModule);
   };
 
   await Promise.all(commandFiles.map(setCommand));
