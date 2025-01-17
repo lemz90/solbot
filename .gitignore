@@ -1,3 +1,7 @@
 node_modules/
 .idea/
-src/secret/
+src/secret/*
+!src/secret/.env.example
+
+# Environment variables
+src/secret/.env
