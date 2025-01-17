@@ -1,17 +1,17 @@
-import DiscordHandler from './discord';
-import ConfigUtil from './config';
-const { Client, GatewayIntentBits } = require('discord.js');
+import Discord from 'discord.js';
+import config from './config/index.js';
+import commands from './discord/commands/index.js';
 
-ConfigUtil.init();
+config.init();
 
-const client = new Client({
+const client = new Discord.Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.DirectMessages,
-        GatewayIntentBits.DirectMessageReactions
+        Discord.GatewayIntentBits.Guilds,
+        Discord.GatewayIntentBits.GuildMessages,
+        Discord.GatewayIntentBits.MessageContent,
+        Discord.GatewayIntentBits.GuildMembers,
+        Discord.GatewayIntentBits.DirectMessages,
+        Discord.GatewayIntentBits.DirectMessageReactions
     ]
 });
 
@@ -25,7 +25,7 @@ client.on('ready', () => {
 
 const main = async () => {
     try {
-        await DiscordHandler.initHandler(client);
+        await commands.initCommands(client);
         await client.login(process.env.DISCORD_TOKEN);
     } catch (error) {
         console.error('Failed to initialize bot:', error);

@@ -1,10 +1,8 @@
-import { 
-  createAssociatedTokenAccountInstruction, 
-  getAssociatedTokenAddress, 
-  createTransferInstruction,
-} from '@solana/spl-token';
+import { createAssociatedTokenAccountInstruction, 
+         getAssociatedTokenAddress, 
+         createTransferInstruction } from '@solana/spl-token';
 import { PublicKey, Transaction, Connection } from '@solana/web3.js';
-import config, { TOKEN_INFO } from '../config';
+import config, { TOKEN_INFO } from '../config/index.js';
 
 class TokenManager {
   static async getOrCreateAssociatedTokenAccount(walletPublicKey) {

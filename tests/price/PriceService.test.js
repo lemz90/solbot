@@ -1,5 +1,5 @@
 import PriceAPI from "../../src/price/priceAPI";
-import PriceService from "../../src/price/PriceService";
+import PriceService from "../../src/price/PriceService.js";
 
 jest.mock('../../src/price/priceAPI', () => ({
     getSolPriceInUSD: jest.fn(() => 1.113)

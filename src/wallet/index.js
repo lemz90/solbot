@@ -1,7 +1,7 @@
-import { CLUSTERS } from '../config';
-import SessionStorageService from './SessionStorageService';
-import Solana from '../solana';
-import { Connection, Keypair, Transaction, PublicKey, createSolanaRpc, signTransaction } from '@solana/web3.js';
+import { CLUSTERS } from '../config/index.js';
+import SessionStorageService from './SessionStorageService.js';
+import Solana from '../solana/index.js';
+import { Connection, Keypair, Transaction, PublicKey } from '@solana/web3.js';
 
 const assertValidClusterName = (clusterName) => {
   if (!Object.values(CLUSTERS).includes(clusterName.toLowerCase())) {

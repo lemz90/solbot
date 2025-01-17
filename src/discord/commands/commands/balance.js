@@ -1,6 +1,6 @@
-import Wallet from '../../../wallet';
-import TokenManager from '../../../wallet/token';
-import { COMMAND_PREFIX, TOKEN_INFO } from '../../../config';
+import Wallet from '../../../wallet/index.js';
+import TokenManager from '../../../wallet/token.js';
+import { COMMAND_PREFIX, TOKEN_INFO } from '../../../config/index.js';
 
 export default {
   name: 'balance',

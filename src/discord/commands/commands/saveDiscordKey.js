@@ -1,6 +1,6 @@
-import UserService from '../../../publicKeyStorage/UserService';
-import { COMMAND_PREFIX } from '../../../config';
-import Wallet from '../../../wallet';
+import { COMMAND_PREFIX } from '../../../config/index.js';
+import UserService from '../../../publicKeyStorage/UserService.js';
+import Wallet from '../../../wallet/index.js';
 
 export default {
   name: 'save-discordkey',

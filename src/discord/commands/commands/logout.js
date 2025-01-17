@@ -1,5 +1,5 @@
-import Wallet from '../../../wallet';
-import { COMMAND_PREFIX } from '../../../config';
+import Wallet from '../../../wallet/index.js';
+import { COMMAND_PREFIX } from '../../../config/index.js';
 
 export default {
   name: 'logout',

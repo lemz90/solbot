@@ -1,5 +1,5 @@
-import UserService from '../../../publicKeyStorage/UserService';
-import { COMMAND_PREFIX } from '../../../config';
+import { COMMAND_PREFIX } from '../../../config/index.js';
+import UserService from '../../../publicKeyStorage/UserService.js';
 
 export default {
   name: 'get-discordkey',

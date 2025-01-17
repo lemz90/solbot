@@ -1,8 +1,8 @@
-import PriceService from '../../../price/PriceService';
-import Wallet from '../../../wallet';
-import TokenManager from '../../../wallet/token';
-import UserService from '../../../publicKeyStorage/UserService';
-import { COMMAND_PREFIX, TOKEN_INFO } from '../../../config';
+import PriceService from '../../../price/PriceService.js';
+import Wallet from '../../../wallet/index.js';
+import TokenManager from '../../../wallet/token.js';
+import UserService from '../../../publicKeyStorage/UserService.js';
+import { COMMAND_PREFIX, TOKEN_INFO } from '../../../config/index.js';
 
 const getCurrentSolPriceInUSD = async () => {
   try {

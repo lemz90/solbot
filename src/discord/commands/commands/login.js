@@ -1,6 +1,6 @@
-import Wallet from '../../../wallet';
-import PriceService from '../../../price/PriceService';
-import { COMMAND_PREFIX } from '../../../config';
+import Wallet from '../../../wallet/index.js';
+import PriceService from '../../../price/PriceService.js';
+import { COMMAND_PREFIX } from '../../../config/index.js';
 
 const getDollarValue = async (sol) => {
   try {

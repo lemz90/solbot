@@ -1,4 +1,5 @@
-import PriceAPI from './priceAPI';
+import fetch from 'node-fetch';
+import PriceAPI from './priceAPI.js';
 
 const convertLamportsToSol = (lamports) => (lamports * 0.000000001).toFixed(4);
 

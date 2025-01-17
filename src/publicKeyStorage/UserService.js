@@ -1,6 +1,5 @@
-const DB = require('./db/models');
-
-const { User } = DB;
+import db from '../models/index.js';
+const { User, sequelize } = db;
 
 const saveUser = async (user) => {
   if (!user) {
@@ -12,7 +11,7 @@ const saveUser = async (user) => {
   }
 
   try {
-    const result = await DB.sequelize.transaction(async (t) => {
+    const result = await sequelize.transaction(async (t) => {
       await User.destroy({
         where: {
           discordId: user.discordId,
@@ -36,7 +35,7 @@ const getUser = (discordId) => User.findOne({ where: { discordId } });
 
 const deleteUser = async (discordId) => {
   try {
-    await DB.sequelize.transaction(async (t) => {
+    await sequelize.transaction(async (t) => {
       await User.destroy({
         where: {
           discordId,

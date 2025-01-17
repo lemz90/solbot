@@ -1,7 +1,7 @@
 import * as web3 from '@solana/web3.js';
-import TransactionUtil from './transaction';
-import AccountUtil from './account';
-import PublicKeyUtil from './publicKey';
+import TransactionUtil from './transaction.js';
+import AccountUtil from './account.js';
+import PublicKeyUtil from './publicKey.js';
 
 const getBalance = (publicKey, cluster) => {
   const connection = new web3.Connection(web3.clusterApiUrl(cluster), 'max');
