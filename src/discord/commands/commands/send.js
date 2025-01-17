@@ -1,7 +1,8 @@
 import PriceService from '../../../price/PriceService';
 import Wallet from '../../../wallet';
+import TokenManager from '../../../wallet/token';
 import UserService from '../../../publicKeyStorage/UserService';
-import { COMMAND_PREFIX } from '../../../config';
+import { COMMAND_PREFIX, TOKEN_INFO } from '../../../config';
 
 const getCurrentSolPriceInUSD = async () => {
   try {
@@ -21,34 +22,49 @@ const getUserFromMention = (mention) => {
 
 export default {
   name: 'send',
-  description: 'Lets you send SOL to someone on the currently selected cluster. To specify the recipient,'
-      + 'you can use a public key or tag someone with @<username> someone. You must be logged in to use this command.'
-      + ' You can add the cluster name after the recipient to send the tx on a specific cluster.',
+  description: 'Lets you send SOL or tokens to someone. To specify the recipient, '
+      + 'you can use a public key or tag someone with @<username>. You can add the cluster name after the recipient to send the tx on a specific cluster.',
   usage: [
     `${COMMAND_PREFIX}send <amount> <publicKeyString>`,
     `${COMMAND_PREFIX}send <amount> @<username>`,
-    `${COMMAND_PREFIX}send <amount> @<username> <clusterName>`,
+    `${COMMAND_PREFIX}send <amount> @<username> <tokenSymbol>`,
+    `${COMMAND_PREFIX}send <amount> @<username> <tokenSymbol> <clusterName>`,
   ],
   async execute(message, args) {
-    if (args.length !== 3 && args.length !== 4) {
+    if (args.length < 3 || args.length > 5) {
       message.channel.send('⚠️ Wrong number of arguments ⚠️');
       return;
     }
 
     let clusterArg;
-    if (args.length >= 4) {
-      try {
-        Wallet.assertValidClusterName(args[3]);
-      } catch (e) {
-        message.channel.send(e.message);
-        return;
-      }
+    let tokenSymbol = 'SOL';  // Default to SOL
 
-      // eslint-disable-next-line prefer-destructuring
-      clusterArg = args[3];
+    // Check for token symbol and cluster args
+    if (args.length >= 4) {
+      const possibleToken = args[3].toLowerCase();
+      if (Object.values(TOKEN_INFO).some(t => t.symbol.toLowerCase() === possibleToken)) {
+        tokenSymbol = possibleToken;
+        if (args.length === 5) {
+          try {
+            Wallet.assertValidClusterName(args[4]);
+            clusterArg = args[4];
+          } catch (e) {
+            message.channel.send(e.message);
+            return;
+          }
+        }
+      } else {
+        try {
+          Wallet.assertValidClusterName(args[3]);
+          clusterArg = args[3];
+        } catch (e) {
+          message.channel.send(e.message);
+          return;
+        }
+      }
     }
 
-    const solToSend = parseFloat(args[1]);
+    const amountToSend = parseFloat(args[1]);
     let toPublicKeyString = args[2];
 
     let recipientId;
@@ -68,8 +84,8 @@ export default {
     }
 
     // eslint-disable-next-line no-restricted-globals
-    if (isNaN(solToSend) || solToSend <= 0) {
-      message.channel.send('⚠️ Invalid sol amount ⚠️');
+    if (isNaN(amountToSend) || amountToSend <= 0) {
+      message.channel.send('⚠️ Invalid amount ⚠️');
       return;
     }
 
@@ -82,24 +98,36 @@ export default {
 
     let signature = '';
     try {
-      signature = await Wallet
-        .transfer(cluster, Object.values(privateKey), toPublicKeyString, solToSend);
+      if (tokenSymbol.toLowerCase() === 'sol') {
+        signature = await Wallet
+          .transfer(cluster, Object.values(privateKey), toPublicKeyString, amountToSend);
+      } else {
+        // Handle token transfer
+        const transaction = await TokenManager.transferTokens(
+          keypair.publicKey.toString(),
+          toPublicKeyString,
+          amountToSend
+        );
+        
+        // Sign and send the transaction
+        signature = await Wallet.signAndSendTransaction(
+          cluster,
+          Object.values(privateKey),
+          transaction
+        );
+      }
     } catch (e) {
       message.channel.send(e.message);
       return;
     }
 
-    const currentPrice = await getCurrentSolPriceInUSD();
-
-    const dollarValue = currentPrice
-      ? await PriceService.getDollarValueForSol(solToSend, currentPrice)
-      : null;
-
+    const currentPrice = tokenSymbol.toLowerCase() === 'sol' ? await getCurrentSolPriceInUSD() : false;
+    const dollarValue = currentPrice ? await PriceService.getDollarValueForSol(amountToSend, currentPrice) : null;
     const recipient = recipientId ? `<@${recipientId}>` : toPublicKeyString;
 
     const txLink = `<https://explorer.solana.com/tx/${signature}?cluster=${cluster}>`;
     const data = [];
-    data.push(`💸 Successfully sent ${solToSend} SOL ${dollarValue ? `(~$${dollarValue}) ` : ''}to ${recipient} on cluster: ${cluster} 💸`);
+    data.push(`💸 Successfully sent ${amountToSend} ${tokenSymbol.toUpperCase()} ${dollarValue ? `(~$${dollarValue}) ` : ''}to ${recipient} on cluster: ${cluster} 💸`);
     data.push('Click the link to see when your tx has been finalized (reached MAX confirmations)!');
     data.push(`${txLink}`);
     message.channel.send(data);

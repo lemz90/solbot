@@ -1,40 +1,40 @@
-import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, getAccount, createTransferInstruction } from '@solana/spl-token';
-import { PublicKey, Transaction } from '@solana/web3.js';
+import { 
+  createAssociatedTokenAccountInstruction, 
+  getAssociatedTokenAddress, 
+  createTransferInstruction,
+} from '@solana/spl-token';
+import { PublicKey, Transaction, Connection } from '@solana/web3.js';
 import config, { TOKEN_INFO } from '../config';
-import { getConnection } from './connection';
 
 class TokenManager {
   static async getOrCreateAssociatedTokenAccount(walletPublicKey) {
-    const connection = getConnection();
+    const connection = new Connection(process.env.SOLANA_RPC_URL);
     const tokenMint = new PublicKey(config.tokens.defaultToken);
     const owner = new PublicKey(walletPublicKey);
 
     try {
       const associatedToken = await getAssociatedTokenAddress(
         tokenMint,
-        owner,
+        owner
       );
 
       // Check if account exists
-      try {
-        await getAccount(connection, associatedToken);
+      const account = await connection.getAccountInfo(associatedToken);
+      if (account) {
         return associatedToken;
-      } catch (error) {
-        if (error.name === 'TokenAccountNotFoundError') {
-          // Create the account
-          const transaction = new Transaction().add(
-            createAssociatedTokenAccountInstruction(
-              owner, // payer
-              associatedToken, // associatedToken
-              owner, // owner
-              tokenMint,
-            ),
-          );
-
-          return { transaction, associatedToken };
-        }
-        throw error;
       }
+
+      // Create the account if it doesn't exist
+      const transaction = new Transaction().add(
+        createAssociatedTokenAccountInstruction(
+          owner,
+          associatedToken,
+          owner,
+          tokenMint,
+        ),
+      );
+
+      return { transaction, associatedToken };
     } catch (error) {
       console.error('Error in getOrCreateAssociatedTokenAccount:', error);
       throw error;
@@ -43,10 +43,9 @@ class TokenManager {
 
   static async getTokenBalance(walletPublicKey) {
     try {
-      const connection = getConnection();
+      const connection = new Connection(process.env.SOLANA_RPC_URL);
       const associatedToken = await this.getOrCreateAssociatedTokenAccount(walletPublicKey);
 
-      // If we got back a transaction, the account needs to be created
       if (associatedToken.transaction) {
         return 0;
       }
@@ -60,25 +59,45 @@ class TokenManager {
   }
 
   static async transferTokens(fromWallet, toWallet, amount) {
-    // const connection = getConnection();
-    // const tokenMint = new PublicKey(config.tokens.defaultToken);
+    const connection = new Connection(process.env.SOLANA_RPC_URL);
+    const tokenMint = new PublicKey(config.tokens.defaultToken);
     const tokenInfo = TOKEN_INFO[config.tokens.defaultToken];
 
     try {
-      // Get or create token accounts for both wallets
+      // Get or create token accounts
       const fromTokenAccount = await this.getOrCreateAssociatedTokenAccount(fromWallet);
       const toTokenAccount = await this.getOrCreateAssociatedTokenAccount(toWallet);
 
-      // Create transfer instruction
+      // If either account needs to be created, we need to handle that first
+      const transaction = new Transaction();
+      
+      if (fromTokenAccount.transaction) {
+        transaction.add(fromTokenAccount.transaction);
+        fromTokenAccount = fromTokenAccount.associatedToken;
+      }
+      
+      if (toTokenAccount.transaction) {
+        transaction.add(toTokenAccount.transaction);
+        toTokenAccount = toTokenAccount.associatedToken;
+      }
+
+      // Check balance before transfer
+      const balance = await this.getTokenBalance(fromWallet);
+      if (balance < amount) {
+        throw new Error(`Insufficient token balance. Available: ${balance} ${tokenInfo.symbol}`);
+      }
+
+      // Add transfer instruction
       const transferInstruction = createTransferInstruction(
         fromTokenAccount,
         toTokenAccount,
-        fromWallet,
+        new PublicKey(fromWallet),
         amount * (10 ** tokenInfo.decimals),
-        fromWallet,
+        new PublicKey(fromWallet),
       );
 
-      const transaction = new Transaction().add(transferInstruction);
+      transaction.add(transferInstruction);
+      
       return transaction;
     } catch (error) {
       console.error('Error in transferTokens:', error);
