@@ -14,6 +14,23 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
 </div>
 
+## ⚡ Quick Start
+Create `src/secret/.env` with:
+```bash
+# Discord Bot Token (required)
+DISCORD_TOKEN=<your_discord_bot_token>
+
+# Solana Configuration
+SOLANA_CLUSTER=mainnet-beta
+SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+
+# Token Configuration
+TOKEN_ADDRESS=7L6M32mpkewGWj8bHspoX8QDe9pb3b3S1U33KpFvpump
+TOKEN_SYMBOL=seahorse
+TOKEN_DECIMALS=9
+TOKEN_NAME=seahorse
+```
+
 ## Table of Contents
 - [Features](#features)
 - [Architecture](#architecture)
